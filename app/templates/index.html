@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <main class="page-shell">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <span class="eyebrow">Actividad práctica</span>
+        <h1>Sistema experto para detección temprana de {{ disease.name }}</h1>
+        <p class="lead">{{ disease.summary }}</p>
+        
+      </div>
+      <div class="hero-card">
+        <h2>Objetivo del sistema</h2>
+        <p>
+          Recibir síntomas iniciales, aplicar reglas de inferencia y generar un
+          prediagnóstico con recomendaciones básicas.
+        </p>
+        <ul>
+          <li>Enfermedad evaluada: {{ disease.name }}</li>
+          <li>Síntomas disponibles: {{ symptoms|length }}</li>
+          <li>Registro automático de consultas en la base de datos</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel form-panel">
+        <div class="panel-header">
+          <h2>Evaluación clínica orientativa</h2>
+          <p>Selecciona los síntomas detectados en la persona evaluada.</p>
+        </div>
+
+        <form id="evaluation-form" class="evaluation-form" data-endpoint="{{ url_for('main.api_evaluate') }}">
+          <label class="field">
+            <span>Nombre de la persona evaluada (opcional)</span>
+            <input type="text" name="patient_name" placeholder="Ej. Paciente A" />
+          </label>
+
+          <div class="field">
+            <span>Síntomas iniciales</span>
+            <div class="symptom-grid">
+              {% for symptom in symptoms %}
+                <label class="symptom-card">
+                  <input type="checkbox" name="symptoms" value="{{ symptom.code }}" />
+                  <span class="symptom-name">{{ symptom.name }}</span>
+                  <small>{{ symptom.description }}</small>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Observaciones (opcional)</span>
+            <textarea
+              name="notes"
+              rows="4"
+              placeholder="Anota cualquier comentario relevante para el historial de consulta."
+            ></textarea>
+          </label>
+
+          <div class="button-row">
+            <button type="submit">Evaluar síntomas</button>
+            <button type="reset" class="secondary">Limpiar formulario</button>
+          </div>
+        </form>
+      </article>
+
+      <aside class="panel info-panel">
+        <div class="panel-header">
+          <h2>Base de conocimiento</h2>
+          <p>El motor de inferencia trabaja con reglas de decisión predefinidas.</p>
+        </div>
+
+        <div class="rule-list">
+          <div class="rule-card">
+            <strong>Regla alta</strong>
+            <p>Si hay sed excesiva + orina frecuente + dos síntomas adicionales, el riesgo se clasifica como alto.</p>
+          </div>
+          <div class="rule-card">
+            <strong>Regla moderada</strong>
+            <p>Si están presentes sed excesiva + orina frecuente + otro síntoma, el riesgo se clasifica como moderado.</p>
+          </div>
+          <div class="rule-card">
+            <strong>Regla baja</strong>
+            <p>Dos síntomas aislados generan una alerta inicial de seguimiento, pero no un patrón fuerte.</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel results-panel" id="results-panel" hidden>
+      <div class="panel-header">
+        <h2>Resultado del sistema experto</h2>
+        <p>Salida generada por el motor de inferencia.</p>
+      </div>
+      <div id="results-content"></div>
+    </section>
+  </main>
+{% endblock %}
+
